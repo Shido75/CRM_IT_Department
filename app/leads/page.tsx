@@ -53,7 +53,11 @@ export default function LeadsPage() {
     try {
       const newLead = await createLead({
         ...data,
+<<<<<<< HEAD
         user_id: user!.id,
+=======
+        created_by: user!.id,
+>>>>>>> c427634 (Fixing Static Dashbaord)
       })
       setLeads((prev) => [newLead, ...prev])
       setShowForm(false)

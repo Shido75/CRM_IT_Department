@@ -20,10 +20,14 @@ INSERT INTO public.profiles (
   requires_password_change
 ) VALUES (
 <<<<<<< HEAD
+<<<<<<< HEAD
   '00000000-0000-0000-0000-000000000001', -- Replace with actual Supabase user UUID
 =======
   'dbca7602-bffb-4ffc-b5d9-39f06be8c5ec', -- Replace with actual Supabase user UUID
 >>>>>>> 2cae5e4 (first CRM Design And functional)
+=======
+  '00000000-0000-0000-0000-000000000001', -- Replace with actual Supabase user UUID
+>>>>>>> c427634 (Fixing Static Dashbaord)
   'admin@company.com',
   'Admin User',
   'admin',

@@ -3,6 +3,7 @@
 import { useAuth } from '@/lib/auth-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Users, Briefcase, CheckSquare } from 'lucide-react'
+<<<<<<< HEAD
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -13,6 +14,86 @@ export default function DashboardPage() {
     { label: 'In Progress', value: '12', icon: CheckSquare, color: 'bg-orange-500' },
     { label: 'Conversion Rate', value: '35%', icon: BarChart3, color: 'bg-purple-500' },
   ]
+=======
+import { useEffect, useState } from 'react'
+import { getLeads, Lead } from '@/lib/services/leads'
+import { getClients, Client } from '@/lib/services/clients'
+
+export default function DashboardPage() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState([
+    { label: 'Total Leads', value: '0', icon: Users, color: 'bg-blue-500' },
+    { label: 'Active Clients', value: '0', icon: Briefcase, color: 'bg-green-500' },
+    { label: 'In Progress', value: '0', icon: CheckSquare, color: 'bg-orange-500' },
+    { label: 'Conversion Rate', value: '0%', icon: BarChart3, color: 'bg-purple-500' },
+  ])
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      if (!user?.id) return
+
+      try {
+        const [leadsData, clientsData] = await Promise.all([
+          getLeads(user.id),
+          getClients(user.id)
+        ])
+
+        // Calculate Stats
+        const totalLeads = leadsData.length
+        const activeClients = clientsData.filter(c => c.status === 'active').length
+
+        // In Progress: Leads that are not new and not converted
+        const inProgressLeads = leadsData.filter(l =>
+          l.status !== 'new' && l.status !== 'converted'
+        ).length
+
+        const convertedLeads = leadsData.filter(l => l.status === 'converted').length
+        const conversionRate = totalLeads > 0
+          ? Math.round((convertedLeads / totalLeads) * 100)
+          : 0
+
+        setStats([
+          { label: 'Total Leads', value: totalLeads.toString(), icon: Users, color: 'bg-blue-500' },
+          { label: 'Active Clients', value: activeClients.toString(), icon: Briefcase, color: 'bg-green-500' },
+          { label: 'In Progress', value: inProgressLeads.toString(), icon: CheckSquare, color: 'bg-orange-500' },
+          { label: 'Conversion Rate', value: `${conversionRate}%`, icon: BarChart3, color: 'bg-purple-500' },
+        ])
+
+        // Generate Recent Activity from Leads and Clients
+        // Combining and sorting by date
+        const recentLeads = leadsData.slice(0, 3).map(lead => ({
+          type: 'lead',
+          item: lead,
+          date: new Date(lead.created_at)
+        }))
+        const recentClients = clientsData.slice(0, 3).map(client => ({
+          type: 'client',
+          item: client,
+          date: new Date(client.created_at)
+        }))
+
+        const activity = [...recentLeads, ...recentClients]
+          .sort((a, b) => b.date.getTime() - a.date.getTime())
+          .slice(0, 3)
+
+        setRecentActivity(activity)
+
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [user?.id])
+
+  if (loading) {
+    return <div className="p-8">Loading dashboard...</div>
+  }
+>>>>>>> c427634 (Fixing Static Dashbaord)
 
   return (
     <div className="space-y-8">
@@ -52,6 +133,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+<<<<<<< HEAD
             <div className="flex items-start gap-4 pb-4 border-b">
               <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
               <div>
@@ -76,6 +158,30 @@ export default function DashboardPage() {
               </div>
               <span className="text-xs text-slate-500 ml-auto">1 day ago</span>
             </div>
+=======
+            {recentActivity.length === 0 ? (
+              <p className="text-sm text-slate-500">No recent activity</p>
+            ) : (
+              recentActivity.map((act, index) => (
+                <div key={index} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${act.type === 'lead' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                  <div>
+                    <p className="font-medium text-sm">
+                      {act.type === 'lead' ? 'New lead added' : 'Client onboarded'}
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      {act.type === 'lead'
+                        ? `${act.item.name} was added as a new lead`
+                        : `${act.item.name} has been converted to active client`}
+                    </p>
+                  </div>
+                  <span className="text-xs text-slate-500 ml-auto">
+                    {new Date(act.date).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            )}
+>>>>>>> c427634 (Fixing Static Dashbaord)
           </div>
         </CardContent>
       </Card>
