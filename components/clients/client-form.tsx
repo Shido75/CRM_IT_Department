@@ -18,7 +18,7 @@ import { AlertCircle } from 'lucide-react'
 
 interface ClientFormProps {
   initialData?: Client
-  onSubmit: (data: Omit<Client, 'id' | 'created_at' | 'updated_at'>) => Promise<void>
+  onSubmit: (data: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => Promise<void>
   isLoading?: boolean
 }
 
@@ -49,7 +49,6 @@ export function ClientForm({ initialData, onSubmit, isLoading }: ClientFormProps
       await onSubmit({
         ...formData,
         contract_value: formData.contract_value ? parseFloat(formData.contract_value) : null,
-        user_id: '', // Will be set by the parent component
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save client')

@@ -48,7 +48,7 @@ export default function LeadsPage() {
     }
   }
 
-  const handleAddLead = async (data: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleAddLead = async (data: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     setFormLoading(true)
     try {
       const newLead = await createLead({
@@ -58,14 +58,14 @@ export default function LeadsPage() {
       setLeads((prev) => [newLead, ...prev])
       setShowForm(false)
     } catch (error) {
-      console.error('Failed to create lead:', error)
+      console.error('Failed to create lead:', JSON.stringify(error, null, 2))
       throw error
     } finally {
       setFormLoading(false)
     }
   }
 
-  const handleUpdateLead = async (data: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleUpdateLead = async (data: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     if (!editingLead) return
     setFormLoading(true)
     try {

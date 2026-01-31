@@ -48,24 +48,24 @@ export default function ClientsPage() {
     }
   }
 
-  const handleAddClient = async (data: Omit<Client, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleAddClient = async (data: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     setFormLoading(true)
     try {
       const newClient = await createClient({
         ...data,
-        user_id: user!.id,
+        created_by: user!.id,
       })
       setClients((prev) => [newClient, ...prev])
       setShowForm(false)
     } catch (error) {
-      console.error('Failed to create client:', error)
+      console.error('Failed to create client:', JSON.stringify(error, null, 2))
       throw error
     } finally {
       setFormLoading(false)
     }
   }
 
-  const handleUpdateClient = async (data: Omit<Client, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleUpdateClient = async (data: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     if (!editingClient) return
     setFormLoading(true)
     try {

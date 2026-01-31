@@ -18,7 +18,7 @@ import { AlertCircle } from 'lucide-react'
 
 interface LeadFormProps {
   initialData?: Lead
-  onSubmit: (data: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => Promise<void>
+  onSubmit: (data: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => Promise<void>
   isLoading?: boolean
 }
 
@@ -48,7 +48,6 @@ export function LeadForm({ initialData, onSubmit, isLoading }: LeadFormProps) {
     try {
       await onSubmit({
         ...formData,
-        user_id: '', // Will be set by the parent component
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save lead')
