@@ -18,44 +18,15 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-<<<<<<< HEAD
-
-const leadsData = [
-  { name: 'Jan', new: 40, contacted: 24, qualified: 20 },
-  { name: 'Feb', new: 45, contacted: 30, qualified: 25 },
-  { name: 'Mar', new: 52, contacted: 38, qualified: 35 },
-  { name: 'Apr', new: 48, contacted: 35, qualified: 30 },
-  { name: 'May', new: 61, contacted: 45, qualified: 40 },
-  { name: 'Jun', new: 55, contacted: 40, qualified: 38 },
-]
-
-const conversionData = [
-  { name: 'Converted', value: 35 },
-  { name: 'Pending', value: 45 },
-  { name: 'Lost', value: 20 },
-]
-
-const revenueData = [
-  { name: 'Jan', revenue: 28000 },
-  { name: 'Feb', revenue: 35000 },
-  { name: 'Mar', revenue: 42000 },
-  { name: 'Apr', revenue: 38000 },
-  { name: 'May', revenue: 52000 },
-  { name: 'Jun', revenue: 61000 },
-]
-=======
 import { useAuth } from '@/lib/auth-context'
 import { useEffect, useState } from 'react'
 import { getLeads, Lead } from '@/lib/services/leads'
 import { getClients, Client } from '@/lib/services/clients'
 import { getProjects, Project } from '@/lib/services/projects'
->>>>>>> c427634 (Fixing Static Dashbaord)
 
 const COLORS = ['#3b82f6', '#10b981', '#ef4444']
 
 export default function ReportsPage() {
-<<<<<<< HEAD
-=======
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState({
@@ -146,7 +117,6 @@ export default function ReportsPage() {
 
   if (loading) return <div className="p-8">Loading reports...</div>
 
->>>>>>> c427634 (Fixing Static Dashbaord)
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -167,58 +137,35 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-600">Total Revenue</p>
-<<<<<<< HEAD
-                <p className="text-3xl font-bold mt-2">$256,000</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            </div>
-            <p className="text-xs text-green-600 mt-2">+12% from last month</p>
-=======
                 <p className="text-3xl font-bold mt-2">${metrics.revenue.toLocaleString()}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
             <p className="text-xs text-green-600 mt-2">Lifetime revenue</p>
->>>>>>> c427634 (Fixing Static Dashbaord)
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-slate-600">Conversion Rate</p>
-<<<<<<< HEAD
-            <p className="text-3xl font-bold mt-2">35%</p>
-            <p className="text-xs text-slate-500 mt-2">24 out of 68 leads</p>
-=======
             <p className="text-3xl font-bold mt-2">{metrics.conversionRate}%</p>
             <p className="text-xs text-slate-500 mt-2">Of total leads</p>
->>>>>>> c427634 (Fixing Static Dashbaord)
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-slate-600">Active Projects</p>
-<<<<<<< HEAD
-            <p className="text-3xl font-bold mt-2">12</p>
-            <p className="text-xs text-slate-500 mt-2">4 in progress</p>
-=======
             <p className="text-3xl font-bold mt-2">{metrics.activeProjects}</p>
             <p className="text-xs text-slate-500 mt-2">In progress</p>
->>>>>>> c427634 (Fixing Static Dashbaord)
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-slate-600">Avg. Deal Size</p>
-<<<<<<< HEAD
-            <p className="text-3xl font-bold mt-2">$14,200</p>
-            <p className="text-xs text-slate-500 mt-2">Based on converted leads</p>
-=======
             <p className="text-3xl font-bold mt-2">${metrics.avgDealSize.toLocaleString()}</p>
             <p className="text-xs text-slate-500 mt-2">Per paying client</p>
->>>>>>> c427634 (Fixing Static Dashbaord)
           </CardContent>
         </Card>
       </div>
@@ -231,25 +178,15 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-<<<<<<< HEAD
-              <BarChart data={leadsData}>
-=======
               <BarChart data={metrics.leadPipeline}>
->>>>>>> c427634 (Fixing Static Dashbaord)
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-<<<<<<< HEAD
-                <Bar dataKey="new" fill="#3b82f6" />
-                <Bar dataKey="contacted" fill="#8b5cf6" />
-                <Bar dataKey="qualified" fill="#10b981" />
-=======
                 <Bar dataKey="new" fill="#3b82f6" name="New" />
                 <Bar dataKey="contacted" fill="#8b5cf6" name="Contacted" />
                 <Bar dataKey="qualified" fill="#10b981" name="Qualified" />
->>>>>>> c427634 (Fixing Static Dashbaord)
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -263,11 +200,7 @@ export default function ReportsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-<<<<<<< HEAD
-                  data={conversionData}
-=======
                   data={metrics.conversionStatus}
->>>>>>> c427634 (Fixing Static Dashbaord)
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -275,11 +208,7 @@ export default function ReportsPage() {
                   paddingAngle={5}
                   dataKey="value"
                 >
-<<<<<<< HEAD
-                  {conversionData.map((entry, index) => (
-=======
                   {metrics.conversionStatus.map((entry, index) => (
->>>>>>> c427634 (Fixing Static Dashbaord)
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -296,19 +225,11 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-<<<<<<< HEAD
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-=======
               <LineChart data={metrics.revenueTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
->>>>>>> c427634 (Fixing Static Dashbaord)
                 <Legend />
                 <Line
                   type="monotone"

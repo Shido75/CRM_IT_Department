@@ -2,11 +2,7 @@ import { supabase } from '@/lib/auth'
 
 export interface Client {
   id: string
-<<<<<<< HEAD
-  user_id: string
-=======
   created_by: string
->>>>>>> c427634 (Fixing Static Dashbaord)
   name: string
   email: string
   phone: string
@@ -22,11 +18,7 @@ export async function getClients(userId: string) {
   const { data, error } = await supabase
     .from('clients')
     .select('*')
-<<<<<<< HEAD
-    .eq('user_id', userId)
-=======
     .eq('created_by', userId) // Changed from user_id to created_by
->>>>>>> c427634 (Fixing Static Dashbaord)
     .order('created_at', { ascending: false })
 
   if (error) throw error

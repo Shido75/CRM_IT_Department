@@ -13,10 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { AlertCircle, CheckCircle, Plus, Trash2 } from 'lucide-react'
-<<<<<<< HEAD
-=======
 import { inviteUser } from '@/app/actions/users'
->>>>>>> c427634 (Fixing Static Dashbaord)
 
 export default function SettingsPage() {
   const { user, profile } = useAuth()
@@ -72,13 +69,6 @@ export default function SettingsPage() {
       setSaveMessage({ type: 'error', text: 'Please fill in all required fields' })
       return
     }
-<<<<<<< HEAD
-    
-    // In a real app, this would call an API to create the user
-    setSaveMessage({ type: 'success', text: 'User invited successfully!' })
-    setShowAddUserForm(false)
-    setNewUser({ email: '', full_name: '', role: 'employee', department: '' })
-=======
 
     try {
       const result = await inviteUser({
@@ -98,7 +88,6 @@ export default function SettingsPage() {
     } catch (error) {
       setSaveMessage({ type: 'error', text: 'Failed to invite user' })
     }
->>>>>>> c427634 (Fixing Static Dashbaord)
   }
 
   const tabs = [
@@ -121,18 +110,10 @@ export default function SettingsPage() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-<<<<<<< HEAD
-            className={`px-4 py-2 font-medium border-b-2 -mb-[2px] transition-colors ${
-              activeTab === tab.id
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-=======
             className={`px-4 py-2 font-medium border-b-2 -mb-[2px] transition-colors ${activeTab === tab.id
               ? 'border-blue-600 text-blue-600'
               : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
->>>>>>> c427634 (Fixing Static Dashbaord)
           >
             {tab.label}
           </button>
@@ -149,18 +130,10 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             {saveMessage && (
               <div
-<<<<<<< HEAD
-                className={`flex gap-2 items-start p-4 rounded-lg ${
-                  saveMessage.type === 'success'
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
-                }`}
-=======
                 className={`flex gap-2 items-start p-4 rounded-lg ${saveMessage.type === 'success'
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-red-50 text-red-700 border border-red-200'
                   }`}
->>>>>>> c427634 (Fixing Static Dashbaord)
               >
                 {saveMessage.type === 'success' ? (
                   <CheckCircle className="w-5 h-5 flex-shrink-0" />
@@ -354,18 +327,10 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             {saveMessage && (
               <div
-<<<<<<< HEAD
-                className={`flex gap-2 items-start p-4 rounded-lg ${
-                  saveMessage.type === 'success'
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
-                }`}
-=======
                 className={`flex gap-2 items-start p-4 rounded-lg ${saveMessage.type === 'success'
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-red-50 text-red-700 border border-red-200'
                   }`}
->>>>>>> c427634 (Fixing Static Dashbaord)
               >
                 {saveMessage.type === 'success' ? (
                   <CheckCircle className="w-5 h-5 flex-shrink-0" />

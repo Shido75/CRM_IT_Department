@@ -3,18 +3,6 @@
 import { useAuth } from '@/lib/auth-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Users, Briefcase, CheckSquare } from 'lucide-react'
-<<<<<<< HEAD
-
-export default function DashboardPage() {
-  const { user } = useAuth()
-
-  const stats = [
-    { label: 'Total Leads', value: '24', icon: Users, color: 'bg-blue-500' },
-    { label: 'Active Clients', value: '18', icon: Briefcase, color: 'bg-green-500' },
-    { label: 'In Progress', value: '12', icon: CheckSquare, color: 'bg-orange-500' },
-    { label: 'Conversion Rate', value: '35%', icon: BarChart3, color: 'bg-purple-500' },
-  ]
-=======
 import { useEffect, useState } from 'react'
 import { getLeads, Lead } from '@/lib/services/leads'
 import { getClients, Client } from '@/lib/services/clients'
@@ -93,7 +81,6 @@ export default function DashboardPage() {
   if (loading) {
     return <div className="p-8">Loading dashboard...</div>
   }
->>>>>>> c427634 (Fixing Static Dashbaord)
 
   return (
     <div className="space-y-8">
@@ -133,32 +120,6 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-<<<<<<< HEAD
-            <div className="flex items-start gap-4 pb-4 border-b">
-              <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
-              <div>
-                <p className="font-medium text-sm">New lead added</p>
-                <p className="text-xs text-slate-600">Sarah Johnson was added as a new lead</p>
-              </div>
-              <span className="text-xs text-slate-500 ml-auto">2 hours ago</span>
-            </div>
-            <div className="flex items-start gap-4 pb-4 border-b">
-              <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
-              <div>
-                <p className="font-medium text-sm">Client onboarded</p>
-                <p className="text-xs text-slate-600">Acme Corp has been converted to active client</p>
-              </div>
-              <span className="text-xs text-slate-500 ml-auto">5 hours ago</span>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
-              <div>
-                <p className="font-medium text-sm">Project created</p>
-                <p className="text-xs text-slate-600">Website redesign project was initiated</p>
-              </div>
-              <span className="text-xs text-slate-500 ml-auto">1 day ago</span>
-            </div>
-=======
             {recentActivity.length === 0 ? (
               <p className="text-sm text-slate-500">No recent activity</p>
             ) : (
@@ -181,7 +142,6 @@ export default function DashboardPage() {
                 </div>
               ))
             )}
->>>>>>> c427634 (Fixing Static Dashbaord)
           </div>
         </CardContent>
       </Card>
