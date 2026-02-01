@@ -2,7 +2,7 @@ import { supabase } from '@/lib/auth'
 
 export interface Project {
   id: string
-  user_id: string
+  created_by: string
   client_id: string | null
   name: string
   description: string | null
@@ -19,7 +19,7 @@ export async function getProjects(userId: string) {
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('user_id', userId)
+    .eq('created_by', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -74,7 +74,7 @@ export async function getProjectsByStatus(userId: string, status: Project['statu
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('user_id', userId)
+    .eq('created_by', userId)
     .eq('status', status)
     .order('created_at', { ascending: false })
 

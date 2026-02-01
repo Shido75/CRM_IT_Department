@@ -18,7 +18,7 @@ import { AlertCircle } from 'lucide-react'
 
 interface ProjectFormProps {
   initialData?: Project
-  onSubmit: (data: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => Promise<void>
+  onSubmit: (data: Omit<Project, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => Promise<void>
   isLoading?: boolean
 }
 
@@ -52,7 +52,6 @@ export function ProjectForm({ initialData, onSubmit, isLoading }: ProjectFormPro
         budget: formData.budget ? parseFloat(formData.budget) : null,
         spent: formData.spent ? parseFloat(formData.spent) : null,
         client_id: formData.client_id || null,
-        user_id: '', // Will be set by the parent component
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save project')

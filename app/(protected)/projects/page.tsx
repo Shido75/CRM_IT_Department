@@ -34,12 +34,12 @@ export default function ProjectsPage() {
     }
   }
 
-  const handleAddProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleAddProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     setFormLoading(true)
     try {
       const newProject = await createProject({
         ...data,
-        user_id: user!.id,
+        created_by: user!.id,
       })
       setProjects((prev) => [newProject, ...prev])
       setShowForm(false)
@@ -51,7 +51,7 @@ export default function ProjectsPage() {
     }
   }
 
-  const handleUpdateProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleUpdateProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
     if (!editingProject) return
     setFormLoading(true)
     try {
