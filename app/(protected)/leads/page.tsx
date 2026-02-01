@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getLeads, createLead, updateLead, deleteLead, convertLead } from '@/lib/services/leads'
+import { getLeads, createLead, updateLead, deleteLead, convertLead, getLeadName } from '@/lib/services/leads'
 import { LeadForm } from '@/components/leads/lead-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -163,7 +163,7 @@ export default function LeadsPage() {
                 <TableBody>
                   {leads.map((lead) => (
                     <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell className="font-medium">{getLeadName(lead)}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           {lead.email && (

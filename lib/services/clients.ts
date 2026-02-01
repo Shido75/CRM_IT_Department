@@ -8,8 +8,9 @@ export interface Client {
   phone: string
   company: string
   status: 'active' | 'inactive' | 'archived'
-  contract_value: number | null
-  notes: string | null
+  address: string | null
+  industry: string | null
+  converted_from_lead_id: string | null
   created_at: string
   updated_at: string
 }

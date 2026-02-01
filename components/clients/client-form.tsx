@@ -29,8 +29,8 @@ export function ClientForm({ initialData, onSubmit, isLoading }: ClientFormProps
     phone: initialData?.phone || '',
     company: initialData?.company || '',
     status: initialData?.status || 'active' as const,
-    contract_value: initialData?.contract_value?.toString() || '',
-    notes: initialData?.notes || '',
+    address: initialData?.address || '',
+    industry: initialData?.industry || '',
   })
   const [error, setError] = useState('')
 
@@ -48,7 +48,7 @@ export function ClientForm({ initialData, onSubmit, isLoading }: ClientFormProps
     try {
       await onSubmit({
         ...formData,
-        contract_value: formData.contract_value ? parseFloat(formData.contract_value) : null,
+        converted_from_lead_id: initialData?.converted_from_lead_id || null,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save client')
@@ -117,6 +117,28 @@ export function ClientForm({ initialData, onSubmit, isLoading }: ClientFormProps
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-medium">Address</label>
+              <Input
+                type="text"
+                placeholder="123 Main St"
+                value={formData.address}
+                onChange={(e) => handleChange('address', e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Industry</label>
+              <Input
+                type="text"
+                placeholder="Technology"
+                value={formData.industry}
+                onChange={(e) => handleChange('industry', e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Status *</label>
               <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
                 <SelectTrigger disabled={isLoading}>
@@ -129,29 +151,6 @@ export function ClientForm({ initialData, onSubmit, isLoading }: ClientFormProps
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Contract Value</label>
-              <Input
-                type="number"
-                placeholder="10000"
-                value={formData.contract_value}
-                onChange={(e) => handleChange('contract_value', e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notes</label>
-            <textarea
-              placeholder="Add any notes about this client..."
-              value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              disabled={isLoading}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={4}
-            />
           </div>
 
           <div className="flex gap-2 justify-end">
