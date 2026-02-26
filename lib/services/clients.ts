@@ -16,11 +16,10 @@ export interface Client {
   updated_at: string
 }
 
-export async function getClients(userId: string) {
+export async function getClients(_userId?: string) {
   const { data, error } = await supabase
     .from('clients')
     .select('*')
-    .eq('created_by', userId) // Changed from user_id to created_by
     .order('created_at', { ascending: false })
 
   if (error) throw error

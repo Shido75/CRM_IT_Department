@@ -50,7 +50,9 @@ export function TaskForm({ initialData, onSubmit, isLoading }: TaskFormProps) {
         ...formData,
         assigned_to: formData.assigned_to || null,
         project_id: formData.project_id || null,
-        user_id: '', // Will be set by the parent component
+        due_date: formData.due_date || null,
+        description: formData.description || null,
+        created_by: null, // Will be overridden by parent with real user id
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save task')

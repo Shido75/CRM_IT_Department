@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: 'Orbinex CRM System',
   description: 'Enterprise CRM for IT companies — Orbinex CRM System',
   generator: 'orbinex',
+  authors: [{ name: 'AK 0121 Agency' }],
+  other: {
+    copyright: '© 2026 AK 0121 Agency. All rights reserved.',
+  },
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },

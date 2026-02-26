@@ -6,6 +6,21 @@ import { useAuth } from '@/lib/auth-context'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 
+function PageSkeleton() {
+    return (
+        <div className="flex-1 overflow-y-auto bg-slate-50 p-8 animate-pulse">
+            <div className="h-8 w-48 bg-slate-200 rounded-lg mb-4" />
+            <div className="h-4 w-72 bg-slate-100 rounded mb-8" />
+            <div className="grid grid-cols-4 gap-4 mb-8">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-24 bg-slate-200 rounded-xl" />
+                ))}
+            </div>
+            <div className="h-64 bg-slate-200 rounded-xl" />
+        </div>
+    )
+}
+
 export default function ProtectedLayout({
     children,
 }: {
@@ -15,28 +30,26 @@ export default function ProtectedLayout({
     const router = useRouter()
 
     useEffect(() => {
-        // Redirect to login if not authenticated
         if (!loading && !user) {
             router.push('/auth/login')
         }
     }, [user, loading, router])
 
-    // Show loading state while checking authentication
-    if (loading) {
+    // Hard block only when we don't know auth state yet (very brief — cached profile skips this)
+    if (loading && !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="text-center">
-                    <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading...</p>
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                        <span className="font-bold text-white text-lg">O</span>
+                    </div>
+                    <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full" />
                 </div>
             </div>
         )
     }
 
-    // Don't render protected content if user is not logged in (will redirect)
-    if (!user) {
-        return null
-    }
+    if (!user) return null
 
     return (
         <SidebarProvider>
@@ -47,9 +60,14 @@ export default function ProtectedLayout({
                         <SidebarTrigger />
                         <span className="font-semibold">Menu</span>
                     </div>
-                    <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
-                        {children}
-                    </div>
+                    {/* Show skeleton while data loads, but sidebar is already visible */}
+                    {loading ? (
+                        <PageSkeleton />
+                    ) : (
+                        <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
+                            {children}
+                        </div>
+                    )}
                 </SidebarInset>
             </div>
         </SidebarProvider>

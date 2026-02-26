@@ -15,11 +15,10 @@ export interface Project {
   updated_at: string
 }
 
-export async function getProjects(userId: string) {
+export async function getProjects(_userId?: string) {
   const { data, error } = await supabase
     .from('projects')
     .select('*')
-    .eq('created_by', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error

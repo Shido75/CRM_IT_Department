@@ -54,7 +54,7 @@ export default function TasksPage() {
     try {
       const newTask = await createTask({
         ...data,
-        user_id: user!.id,
+        created_by: user!.id,
       })
       setTasks((prev) => [newTask, ...prev])
       setShowForm(false)

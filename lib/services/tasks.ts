@@ -2,7 +2,7 @@ import { supabase } from '@/lib/auth'
 
 export interface Task {
   id: string
-  user_id: string
+  created_by: string | null
   project_id: string | null
   title: string
   description: string | null
@@ -14,11 +14,11 @@ export interface Task {
   updated_at: string
 }
 
-export async function getTasks(userId: string) {
+// Fetch all tasks — all authenticated users see all org tasks
+export async function getTasks(_userId?: string) {
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
-    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -67,18 +67,6 @@ export async function deleteTask(id: string) {
     .eq('id', id)
 
   if (error) throw error
-}
-
-export async function getTasksByStatus(userId: string, status: Task['status']) {
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('status', status)
-    .order('due_date', { ascending: true })
-
-  if (error) throw error
-  return data as Task[]
 }
 
 export async function getTasksByProject(projectId: string) {

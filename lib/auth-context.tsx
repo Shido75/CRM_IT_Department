@@ -1,7 +1,6 @@
 'use client'
 
 import React from "react"
-
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from './auth'
@@ -28,6 +27,40 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const PROFILE_CACHE_KEY = 'crm_profile_cache'
+
+function getCachedProfile(userId: string): UserProfile | null {
+  try {
+    const raw = sessionStorage.getItem(PROFILE_CACHE_KEY)
+    if (!raw) return null
+    const cached = JSON.parse(raw)
+    if (cached?.id === userId) return cached as UserProfile
+  } catch { }
+  return null
+}
+
+function setCachedProfile(profile: UserProfile) {
+  try {
+    sessionStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile))
+  } catch { }
+}
+
+function clearCachedProfile() {
+  try {
+    sessionStorage.removeItem(PROFILE_CACHE_KEY)
+  } catch { }
+}
+
+async function fetchProfile(userId: string): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  if (error || !data) return null
+  return data as UserProfile
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -35,60 +68,89 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const checkAuth = async () => {
+    let isMounted = true
+
+    const init = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        if (userError) {
-          setError(userError.message)
+        // Fire getUser and session check concurrently
+        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+
+        if (!isMounted) return
+
+        if (userError || !currentUser) {
           setUser(null)
           setProfile(null)
-        } else if (user) {
-          setUser(user)
-          // Fetch user profile
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
-          
-          if (!profileError && profileData) {
-            setProfile(profileData as UserProfile)
+          setError(userError?.message || null)
+        } else {
+          setUser(currentUser)
+
+          // Try cache first — instant load, no network round-trip
+          const cached = getCachedProfile(currentUser.id)
+          if (cached) {
+            setProfile(cached)
+            setLoading(false)
+            // Refresh in background without blocking UI
+            fetchProfile(currentUser.id).then((fresh) => {
+              if (fresh && isMounted) {
+                setProfile(fresh)
+                setCachedProfile(fresh)
+              }
+            })
+            return
+          }
+
+          // No cache — fetch and store
+          const profileData = await fetchProfile(currentUser.id)
+          if (isMounted && profileData) {
+            setProfile(profileData)
+            setCachedProfile(profileData)
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to check auth')
+        if (isMounted) setError(err instanceof Error ? err.message : 'Auth error')
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
-    checkAuth()
+    init()
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user ?? null)
-        if (session?.user) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          if (profileData) {
-            setProfile(profileData as UserProfile)
-          }
-        } else {
+      async (event, session) => {
+        if (!isMounted) return
+
+        if (event === 'SIGNED_OUT') {
+          setUser(null)
           setProfile(null)
+          clearCachedProfile()
+          return
+        }
+
+        if (session?.user) {
+          setUser(session.user)
+          // Use cache if available, refresh in background
+          const cached = getCachedProfile(session.user.id)
+          if (cached) {
+            setProfile(cached)
+          }
+          fetchProfile(session.user.id).then((fresh) => {
+            if (fresh && isMounted) {
+              setProfile(fresh)
+              setCachedProfile(fresh)
+            }
+          })
         }
       }
     )
 
     return () => {
+      isMounted = false
       authListener?.subscription.unsubscribe()
     }
   }, [])
 
   const signOut = async () => {
+    clearCachedProfile()
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)

@@ -21,11 +21,10 @@ export interface Lead {
 // Helper to join names for UI display if needed, or UI can use first/last directly
 export const getLeadName = (lead: Lead) => `${lead.first_name} ${lead.last_name}`.trim()
 
-export async function getLeads(userId: string) {
+export async function getLeads(_userId?: string) {
   const { data, error } = await supabase
     .from('leads')
     .select('*')
-    .eq('created_by', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
