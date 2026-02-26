@@ -2,8 +2,9 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-export async function inviteUser(userData: {
+export async function createUser(userData: {
     email: string
+    password: string
     full_name: string
     role: 'admin' | 'manager' | 'employee'
     department: string
@@ -12,7 +13,7 @@ export async function inviteUser(userData: {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
     if (!supabaseServiceKey) {
-        return { success: false, error: 'Server configuration error: Missing Service Key' }
+        return { success: false, error: 'Server configuration error: Missing Service Role Key' }
     }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
@@ -23,11 +24,19 @@ export async function inviteUser(userData: {
     })
 
     try {
-        const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(userData.email)
+        // Create user with direct password — no email verification required
+        const { data, error } = await supabaseAdmin.auth.admin.createUser({
+            email: userData.email,
+            password: userData.password,
+            email_confirm: true,          // skips verification email entirely
+            user_metadata: {
+                full_name: userData.full_name,
+            },
+        })
 
         if (error) throw error
 
-        // Create or update profile
+        // Create profile record
         if (data.user) {
             const { error: profileError } = await supabaseAdmin
                 .from('profiles')
@@ -38,7 +47,8 @@ export async function inviteUser(userData: {
                     role: userData.role,
                     department: userData.department,
                     status: 'active',
-                    updated_at: new Date().toISOString()
+                    requires_password_change: false,
+                    updated_at: new Date().toISOString(),
                 })
 
             if (profileError) throw profileError
@@ -46,7 +56,17 @@ export async function inviteUser(userData: {
 
         return { success: true }
     } catch (error: any) {
-        console.error('Error inviting user:', error)
-        return { success: false, error: error.message || 'Failed to invite user' }
+        console.error('Error creating user:', error)
+        return { success: false, error: error.message || 'Failed to create user' }
     }
+}
+
+// Keep old inviteUser export for backward compat (redirects to createUser)
+export async function inviteUser(userData: {
+    email: string
+    full_name: string
+    role: 'admin' | 'manager' | 'employee'
+    department: string
+}) {
+    return createUser({ ...userData, password: 'ChangeMe@123' })
 }

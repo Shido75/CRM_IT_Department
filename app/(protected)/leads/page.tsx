@@ -2,8 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getLeads, createLead, updateLead, deleteLead, convertLead, getLeadName } from '@/lib/services/leads'
+import {
+  getLeads,
+  createLead,
+  updateLead,
+  deleteLead,
+  convertLeadWithProject,
+  getLeadName,
+} from '@/lib/services/leads'
 import { LeadForm } from '@/components/leads/lead-form'
+import { ConvertLeadModal } from '@/components/leads/convert-lead-modal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,8 +28,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreVertical, Plus, Mail, Phone, Building2 } from 'lucide-react'
+import { MoreVertical, Plus, Mail, Phone, Building2, CheckCircle } from 'lucide-react'
 import type { Lead } from '@/lib/services/leads'
+import type { ProjectData } from '@/components/leads/convert-lead-modal'
 
 export default function LeadsPage() {
   const { user } = useAuth()
@@ -30,6 +39,8 @@ export default function LeadsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingLead, setEditingLead] = useState<Lead | null>(null)
   const [formLoading, setFormLoading] = useState(false)
+  const [convertingLead, setConvertingLead] = useState<Lead | null>(null)
+  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
     loadLeads()
@@ -91,17 +102,28 @@ export default function LeadsPage() {
     }
   }
 
-  const handleConvertLead = async (id: string) => {
-    try {
-      await convertLead(id, user!.id)
-      setLeads((prev) =>
-        prev.map((lead) =>
-          lead.id === id ? { ...lead, status: 'converted' } : lead
-        )
+  const handleConvertConfirm = async (projectData: ProjectData) => {
+    if (!convertingLead || !user) return
+
+    await convertLeadWithProject(convertingLead.id, user.id, {
+      project_name: projectData.project_name,
+      description: projectData.description,
+      budget: projectData.budget,
+      start_date: projectData.start_date,
+      end_date: projectData.end_date,
+    })
+
+    // Update lead status in local state
+    setLeads((prev) =>
+      prev.map((lead) =>
+        lead.id === convertingLead.id ? { ...lead, status: 'converted' } : lead
       )
-    } catch (error) {
-      console.error('Failed to convert lead:', error)
-    }
+    )
+
+    const name = getLeadName(convertingLead)
+    setSuccessMessage(`${name} converted to client with a new project!`)
+    setTimeout(() => setSuccessMessage(''), 4000)
+    setConvertingLead(null)
   }
 
   const getStatusColor = (status: string) => {
@@ -129,6 +151,14 @@ export default function LeadsPage() {
           </Button>
         )}
       </div>
+
+      {/* Success banner */}
+      {successMessage && (
+        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+          <CheckCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{successMessage}</p>
+        </div>
+      )}
 
       {(showForm || editingLead) && (
         <LeadForm
@@ -216,7 +246,7 @@ export default function LeadsPage() {
                               Edit
                             </DropdownMenuItem>
                             {lead.status !== 'converted' && (
-                              <DropdownMenuItem onClick={() => handleConvertLead(lead.id)}>
+                              <DropdownMenuItem onClick={() => setConvertingLead(lead)}>
                                 Convert to Client
                               </DropdownMenuItem>
                             )}
@@ -237,6 +267,17 @@ export default function LeadsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Convert Lead Modal */}
+      {convertingLead && (
+        <ConvertLeadModal
+          isOpen={true}
+          leadName={getLeadName(convertingLead)}
+          leadCompany={convertingLead.company}
+          onConfirm={handleConvertConfirm}
+          onCancel={() => setConvertingLead(null)}
+        />
+      )}
     </div>
   )
 }

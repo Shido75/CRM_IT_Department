@@ -49,12 +49,12 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href="/dashboard">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-500 text-sidebar-primary-foreground">
-                                    <span className="font-bold text-white">C</span>
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-sidebar-primary-foreground">
+                                    <span className="font-bold text-white">O</span>
                                 </div>
                                 <div className="flex flex-col gap-0.5 leading-none">
-                                    <span className="font-semibold">CRM Pro</span>
-                                    <span className="">v1.0.0</span>
+                                    <span className="font-semibold">Orbinex CRM</span>
+                                    <span className="text-xs text-muted-foreground">v1.0.0</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>

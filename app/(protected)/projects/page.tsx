@@ -2,18 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getProjects, createProject, updateProject, deleteProject } from '@/lib/services/projects'
+import { getProjects, updateProject, deleteProject } from '@/lib/services/projects'
 import { ProjectForm } from '@/components/projects/project-form'
 import { KanbanBoard } from '@/components/projects/kanban-board'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
 import type { Project } from '@/lib/services/projects'
 
 export default function ProjectsPage() {
   const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [formLoading, setFormLoading] = useState(false)
 
@@ -31,23 +28,6 @@ export default function ProjectsPage() {
       console.error('Failed to load projects:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleAddProject = async (data: Omit<Project, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
-    setFormLoading(true)
-    try {
-      const newProject = await createProject({
-        ...data,
-        created_by: user!.id,
-      })
-      setProjects((prev) => [newProject, ...prev])
-      setShowForm(false)
-    } catch (error) {
-      console.error('Failed to create project:', error)
-      throw error
-    } finally {
-      setFormLoading(false)
     }
   }
 
@@ -93,20 +73,14 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
-          <p className="text-slate-600 mt-2">Manage your projects with Kanban board</p>
+          <p className="text-slate-600 mt-2">Projects are created when you convert a Lead to a Client</p>
         </div>
-        {!showForm && !editingProject && (
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
-        )}
       </div>
 
-      {(showForm || editingProject) && (
+      {editingProject && (
         <ProjectForm
-          initialData={editingProject || undefined}
-          onSubmit={editingProject ? handleUpdateProject : handleAddProject}
+          initialData={editingProject}
+          onSubmit={handleUpdateProject}
           isLoading={formLoading}
         />
       )}

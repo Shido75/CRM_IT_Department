@@ -10,6 +10,7 @@ export interface Client {
   status: 'active' | 'inactive' | 'archived'
   address: string | null
   industry: string | null
+  contract_value?: number | null
   converted_from_lead_id: string | null
   created_at: string
   updated_at: string

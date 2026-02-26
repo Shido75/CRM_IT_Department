@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getClients, createClient, updateClient, deleteClient } from '@/lib/services/clients'
+import { getClients, updateClient, deleteClient } from '@/lib/services/clients'
 import { ClientForm } from '@/components/clients/client-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,14 +20,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreVertical, Plus, Mail, Phone, Building2, DollarSign } from 'lucide-react'
+import { MoreVertical, Mail, Phone, Building2, DollarSign } from 'lucide-react'
 import type { Client } from '@/lib/services/clients'
 
 export default function ClientsPage() {
   const { user } = useAuth()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [formLoading, setFormLoading] = useState(false)
 
@@ -45,23 +44,6 @@ export default function ClientsPage() {
       console.error('Failed to load clients:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleAddClient = async (data: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
-    setFormLoading(true)
-    try {
-      const newClient = await createClient({
-        ...data,
-        created_by: user!.id,
-      })
-      setClients((prev) => [newClient, ...prev])
-      setShowForm(false)
-    } catch (error) {
-      console.error('Failed to create client:', JSON.stringify(error, null, 2))
-      throw error
-    } finally {
-      setFormLoading(false)
     }
   }
 
@@ -107,14 +89,8 @@ export default function ClientsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Clients</h1>
-          <p className="text-slate-600 mt-2">Manage your active clients and contracts</p>
+          <p className="text-slate-600 mt-2">Clients are created when you convert a Lead — go to Leads to get started</p>
         </div>
-        {!showForm && !editingClient && (
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Client
-          </Button>
-        )}
       </div>
 
       {/* Stats */}
@@ -146,10 +122,10 @@ export default function ClientsPage() {
         </Card>
       </div>
 
-      {(showForm || editingClient) && (
+      {editingClient && (
         <ClientForm
-          initialData={editingClient || undefined}
-          onSubmit={editingClient ? handleUpdateClient : handleAddClient}
+          initialData={editingClient}
+          onSubmit={handleUpdateClient}
           isLoading={formLoading}
         />
       )}
@@ -162,7 +138,10 @@ export default function ClientsPage() {
           {loading ? (
             <p className="text-slate-600">Loading clients...</p>
           ) : clients.length === 0 ? (
-            <p className="text-slate-600">No clients yet. Add one to get started.</p>
+            <div className="text-center py-12">
+              <p className="text-slate-600 font-medium">No clients yet</p>
+              <p className="text-sm text-slate-400 mt-1">Convert a lead to automatically create a client and project</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>

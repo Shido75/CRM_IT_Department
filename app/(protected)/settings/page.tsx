@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { AlertCircle, CheckCircle, Plus, Trash2 } from 'lucide-react'
-import { inviteUser } from '@/app/actions/users'
+import { AlertCircle, CheckCircle, Plus } from 'lucide-react'
+import { createUser } from '@/app/actions/users'
 
 export default function SettingsPage() {
   const { user, profile } = useAuth()
@@ -29,6 +29,8 @@ export default function SettingsPage() {
     full_name: '',
     role: 'employee',
     department: '',
+    password: '',
+    confirmPassword: '',
   })
 
   const [settings, setSettings] = useState({
@@ -65,28 +67,39 @@ export default function SettingsPage() {
   }
 
   const handleAddUser = async () => {
-    if (!newUser.email || !newUser.full_name) {
+    if (!newUser.email || !newUser.full_name || !newUser.password) {
       setSaveMessage({ type: 'error', text: 'Please fill in all required fields' })
       return
     }
 
+    if (newUser.password !== newUser.confirmPassword) {
+      setSaveMessage({ type: 'error', text: 'Passwords do not match' })
+      return
+    }
+
+    if (newUser.password.length < 6) {
+      setSaveMessage({ type: 'error', text: 'Password must be at least 6 characters' })
+      return
+    }
+
     try {
-      const result = await inviteUser({
+      const result = await createUser({
         email: newUser.email,
+        password: newUser.password,
         full_name: newUser.full_name,
         role: newUser.role as any,
-        department: newUser.department
+        department: newUser.department,
       })
 
       if (result.success) {
-        setSaveMessage({ type: 'success', text: 'User invited successfully!' })
+        setSaveMessage({ type: 'success', text: `User "${newUser.full_name}" created successfully! They can log in with the password you set.` })
         setShowAddUserForm(false)
-        setNewUser({ email: '', full_name: '', role: 'employee', department: '' })
+        setNewUser({ email: '', full_name: '', role: 'employee', department: '', password: '', confirmPassword: '' })
       } else {
-        setSaveMessage({ type: 'error', text: result.error || 'Failed to invite user' })
+        setSaveMessage({ type: 'error', text: result.error || 'Failed to create user' })
       }
     } catch (error) {
-      setSaveMessage({ type: 'error', text: 'Failed to invite user' })
+      setSaveMessage({ type: 'error', text: 'Failed to create user' })
     }
   }
 
@@ -350,17 +363,18 @@ export default function SettingsPage() {
               <Card className="bg-slate-50">
                 <CardContent className="pt-6 space-y-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Email*</label>
+                    <label className="text-sm font-medium">Email *</label>
                     <Input
-                      type="email"
-                      placeholder="user@company.com"
+                      type="text"
+                      placeholder="user@yourcompany.in"
                       value={newUser.email}
                       onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                     />
+                    <p className="text-xs text-slate-500">Any email format works — no verification email is sent</p>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Full Name*</label>
+                    <label className="text-sm font-medium">Full Name *</label>
                     <Input
                       placeholder="John Doe"
                       value={newUser.full_name}
@@ -391,8 +405,29 @@ export default function SettingsPage() {
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Password *</label>
+                      <Input
+                        type="password"
+                        placeholder="Min. 6 characters"
+                        value={newUser.password}
+                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Confirm Password *</label>
+                      <Input
+                        type="password"
+                        placeholder="Re-enter password"
+                        value={newUser.confirmPassword}
+                        onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex gap-2 pt-2">
-                    <Button onClick={handleAddUser}>Send Invite</Button>
+                    <Button onClick={handleAddUser}>Create User</Button>
                     <Button variant="outline" onClick={() => setShowAddUserForm(false)}>Cancel</Button>
                   </div>
                 </CardContent>
