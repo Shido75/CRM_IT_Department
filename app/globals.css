@@ -119,7 +119,91 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Dashboard Calendar — fill card */
+.dashboard-calendar {
+  width: 100%;
+}
+
+.dashboard-calendar [data-slot="calendar"] {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.dashboard-calendar .rdp-root {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.dashboard-calendar .rdp-months {
+  width: 100% !important;
+}
+
+.dashboard-calendar .rdp-month {
+  width: 100% !important;
+}
+
+.dashboard-calendar .rdp-month_caption {
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.dashboard-calendar .rdp-weekdays {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.dashboard-calendar .rdp-weekday {
+  flex: 1 !important;
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.dashboard-calendar .rdp-week {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.dashboard-calendar .rdp-day {
+  flex: 1 !important;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem;
+}
+
+.dashboard-calendar .rdp-day button {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: unset !important;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.dashboard-calendar table {
+  width: 100% !important;
+  border-collapse: collapse;
+}
+
+.dashboard-calendar table thead tr,
+.dashboard-calendar table tbody tr {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.dashboard-calendar table thead th,
+.dashboard-calendar table tbody td {
+  flex: 1 !important;
+}
+
+.dashboard-calendar .rdp-nav {
+  z-index: 1;
 }

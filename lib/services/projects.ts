@@ -80,3 +80,21 @@ export async function getProjectsByStatus(userId: string, status: Project['statu
   if (error) throw error
   return data as Project[]
 }
+
+export interface ProjectWithAssignee extends Project {
+  profiles: { full_name: string | null } | null
+}
+
+export async function getProjectsWithAssignees() {
+  const { data, error } = await supabase
+    .from('projects')
+    .select(`
+      *,
+      profiles:created_by ( full_name )
+    `)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data as ProjectWithAssignee[]
+}
+

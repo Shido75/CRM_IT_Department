@@ -2,72 +2,79 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, Users, Briefcase, CheckSquare } from 'lucide-react'
+import { BarChart3, Users, Briefcase, CheckSquare, DollarSign } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getLeads, Lead } from '@/lib/services/leads'
 import { getClients, Client } from '@/lib/services/clients'
+import { getProjectsWithAssignees, ProjectWithAssignee } from '@/lib/services/projects'
+
+import { DashboardCalendar } from '@/components/dashboard/dashboard-calendar'
+import { ProjectOverviewTable } from '@/components/dashboard/project-overview-table'
+import { ProjectTypeChart } from '@/components/dashboard/project-type-chart'
+import { ProjectAnalyticsChart } from '@/components/dashboard/project-analytics-chart'
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
+  const [projects, setProjects] = useState<ProjectWithAssignee[]>([])
+  const [deadlineDates, setDeadlineDates] = useState<Date[]>([])
   const [stats, setStats] = useState([
-    { label: 'Total Leads', value: '0', icon: Users, color: 'bg-blue-500' },
-    { label: 'Active Clients', value: '0', icon: Briefcase, color: 'bg-green-500' },
-    { label: 'In Progress', value: '0', icon: CheckSquare, color: 'bg-orange-500' },
-    { label: 'Conversion Rate', value: '0%', icon: BarChart3, color: 'bg-purple-500' },
+    { label: 'Total Clients', value: '0', icon: Users, color: 'bg-blue-500' },
+    { label: 'Active Projects', value: '0', icon: Briefcase, color: 'bg-green-500' },
+    { label: 'Tasks Due', value: '0', icon: CheckSquare, color: 'bg-orange-500' },
+    { label: 'Revenue', value: '$0', icon: DollarSign, color: 'bg-purple-500' },
   ])
-  const [recentActivity, setRecentActivity] = useState<any[]>([])
 
   useEffect(() => {
     async function loadDashboardData() {
       if (!user?.id) return
 
       try {
-        const [leadsData, clientsData] = await Promise.all([
+        const [leadsData, clientsData, projectsData] = await Promise.all([
           getLeads(user.id),
-          getClients(user.id)
+          getClients(user.id),
+          getProjectsWithAssignees(),
         ])
 
         // Calculate Stats
-        const totalLeads = leadsData.length
-        const activeClients = clientsData.filter(c => c.status === 'active').length
-
-        // In Progress: Leads that are not new and not converted
-        const inProgressLeads = leadsData.filter(l =>
-          l.status !== 'new' && l.status !== 'converted'
+        const totalClients = clientsData.length
+        const activeProjects = projectsData.filter(
+          (p) => p.status === 'in_progress' || p.status === 'planning'
         ).length
 
-        const convertedLeads = leadsData.filter(l => l.status === 'converted').length
-        const conversionRate = totalLeads > 0
-          ? Math.round((convertedLeads / totalLeads) * 100)
-          : 0
+        // Tasks due — count projects with end_date approaching
+        const today = new Date()
+        const upcoming = projectsData.filter((p) => {
+          if (!p.end_date) return false
+          const end = new Date(p.end_date)
+          const diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          return diff >= 0 && diff <= 7
+        }).length
+
+        const totalRevenue = projectsData.reduce(
+          (sum, p) => sum + (p.budget || 0),
+          0
+        )
 
         setStats([
-          { label: 'Total Leads', value: totalLeads.toString(), icon: Users, color: 'bg-blue-500' },
-          { label: 'Active Clients', value: activeClients.toString(), icon: Briefcase, color: 'bg-green-500' },
-          { label: 'In Progress', value: inProgressLeads.toString(), icon: CheckSquare, color: 'bg-orange-500' },
-          { label: 'Conversion Rate', value: `${conversionRate}%`, icon: BarChart3, color: 'bg-purple-500' },
+          { label: 'Total Clients', value: totalClients.toString(), icon: Users, color: 'bg-blue-500' },
+          { label: 'Active Projects', value: activeProjects.toString(), icon: Briefcase, color: 'bg-green-500' },
+          { label: 'Tasks Due', value: upcoming.toString(), icon: CheckSquare, color: 'bg-orange-500' },
+          {
+            label: 'Revenue',
+            value: `$${totalRevenue.toLocaleString()}`,
+            icon: DollarSign,
+            color: 'bg-purple-500',
+          },
         ])
 
-        // Generate Recent Activity from Leads and Clients
-        // Combining and sorting by date
-        const recentLeads = leadsData.slice(0, 3).map(lead => ({
-          type: 'lead',
-          item: lead,
-          date: new Date(lead.created_at)
-        }))
-        const recentClients = clientsData.slice(0, 3).map(client => ({
-          type: 'client',
-          item: client,
-          date: new Date(client.created_at)
-        }))
+        setProjects(projectsData)
 
-        const activity = [...recentLeads, ...recentClients]
-          .sort((a, b) => b.date.getTime() - a.date.getTime())
-          .slice(0, 3)
-
-        setRecentActivity(activity)
-
+        // Collect deadline dates for the calendar
+        const dates = projectsData
+          .filter((p) => p.end_date)
+          .map((p) => new Date(p.end_date!))
+        setDeadlineDates(dates)
       } catch (error) {
         console.error('Failed to load dashboard data:', error)
       } finally {
@@ -83,23 +90,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900">
-          Welcome back, {user?.user_metadata?.full_name || 'User'}!
+          CRM Dashboard
         </h1>
-        <p className="text-slate-600 mt-2">Here's what's happening with your business today.</p>
+        <p className="text-slate-600 mt-1">
+          Welcome back, {user?.user_metadata?.full_name || 'Admin'}
+        </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid — matching reference: Total Clients, Active Projects, Tasks Due, Revenue */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.label}>
+            <Card key={stat.label} className="relative overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-600">{stat.label}</CardTitle>
                 <div className={`${stat.color} p-2 rounded-lg`}>
                   <Icon className="w-4 h-4 text-white" />
                 </div>
@@ -112,39 +121,17 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Recent Activity Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates from your CRM</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentActivity.length === 0 ? (
-              <p className="text-sm text-slate-500">No recent activity</p>
-            ) : (
-              recentActivity.map((act, index) => (
-                <div key={index} className="flex items-start gap-4 pb-4 border-b last:border-0">
-                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${act.type === 'lead' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-                  <div>
-                    <p className="font-medium text-sm">
-                      {act.type === 'lead' ? 'New lead added' : 'Client onboarded'}
-                    </p>
-                    <p className="text-xs text-slate-600">
-                      {act.type === 'lead'
-                        ? `${act.item.name} was added as a new lead`
-                        : `${act.item.name} has been converted to active client`}
-                    </p>
-                  </div>
-                  <span className="text-xs text-slate-500 ml-auto">
-                    {new Date(act.date).toLocaleDateString()}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Second Row: Calendar + Project Overview Table */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <DashboardCalendar deadlineDates={deadlineDates} />
+        <ProjectOverviewTable projects={projects} />
+      </div>
+
+      {/* Third Row: Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ProjectTypeChart projects={projects} />
+        <ProjectAnalyticsChart projects={projects} />
+      </div>
     </div>
   )
 }
